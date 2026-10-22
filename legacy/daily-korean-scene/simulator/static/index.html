@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Daily Korean Scene - Alexa+ add-on simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo"></span><b>Daily Korean Scene</b><span class="tagline">Alexa+ add-on simulator · real MCP client</span></div>
+    <div class="conn" id="conn"><span class="led"></span><span id="conn-text">Connecting to MCP server...</span></div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="device" id="device">
+        <div class="bezel">
+          <div class="camera"></div>
+          <div class="screen" id="screen" data-mode="inline">
+            <div class="statusbar">
+              <span class="addon" id="addon-chip">Daily Korean Scene</span>
+              <span class="spacer"></span>
+              <span id="clock-date"></span><span class="sep">·</span><span id="clock-time"></span>
+            </div>
+            <div class="ambient" id="ambient">
+              <div class="amb-time" id="amb-time">--:--</div>
+              <div class="amb-hint">Try <b>"Let's practice Korean"</b></div>
+            </div>
+            <div class="captions" id="captions">
+              <div class="you" id="cap-you"></div>
+              <div class="assistant" id="cap-assistant"></div>
+            </div>
+            <div class="card-slot" id="card-slot"></div>
+            <div class="voice-only" id="voice-only"><div class="orb big"></div><div>Voice-only device - no screen</div></div>
+            <div class="orb-dock"><div class="orb" id="orb"></div></div>
+            <button class="close-fs" id="close-fs" title="Back to inline">&#x2715;</button>
+          </div>
+        </div>
+        <div class="fabric"></div>
+      </div>
+
+      <div class="controls">
+        <div class="row mics">
+          <button class="mic en" id="mic-en"><span class="dot"></span>Talk to assistant <small>en-US</small></button>
+          <button class="mic ko" id="mic-ko"><span class="dot"></span>Speak Korean <small>ko-KR</small></button>
+        </div>
+        <form class="row typebox" id="typebox">
+          <input id="text" autocomplete="off" placeholder="Type instead of speaking - English request or Korean answer">
+          <button class="send" type="submit">Send</button>
+        </form>
+        <div class="row chips" id="chips">
+          <button data-say="Let's practice Korean">Let's practice Korean</button>
+          <button data-say="Let's review yesterday's phrases">Review yesterday</button>
+          <button data-say="How am I doing?">My progress</button>
+          <button data-say="What scene packs can I get?">Scene packs</button>
+          <button data-say="Remind me to practice every weekday at 7:30 in the morning">Schedule practice</button>
+        </div>
+        <div class="row demo">
+          <span class="label">Display</span>
+          <div class="seg" id="mode-seg">
+            <button data-mode="inline" class="on">Inline card</button>
+            <button data-mode="fullscreen">Fullscreen</button>
+            <button data-mode="voice-only">Voice-only</button>
+          </div>
+          <span class="label">Demo clock</span>
+          <button class="ghost" id="next-day">Next day &#x25B8;</button>
+          <button class="ghost" id="reset">Reset learner</button>
+          <label class="toggle"><input type="checkbox" id="sound" checked> Sound</label>
+        </div>
+      </div>
+    </section>
+
+    <aside class="log">
+      <div class="log-head">
+        <b>MCP traffic</b>
+        <span class="meta" id="log-meta"></span>
+        <span class="spacer"></span>
+        <label class="toggle small"><input type="checkbox" id="log-llm" checked> LLM</label>
+        <label class="toggle small"><input type="checkbox" id="log-ui" checked> Card bridge</label>
+        <button class="ghost small" id="log-clear">Clear</button>
+      </div>
+      <div class="legend"><span class="k mcp">MCP</span> Streamable HTTP JSON-RPC <span class="k llm">LLM</span> assistant decision <span class="k ui">UI</span> MCP Apps postMessage</div>
+      <div class="log-list" id="log-list"></div>
+    </aside>
+  </main>
+
+  <script src="/static/mcp-client.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

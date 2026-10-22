@@ -1,0 +1,91 @@
+<style>
+  .body { height: calc(100% - 56px); padding: 0 20px 14px; }
+  .grid { display: flex; gap: 16px; height: 100%; }
+  .pack { flex: 1; min-height: 0; border-radius: 16px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; position: relative; overflow: hidden; border: 1px solid var(--line); }
+  .pack .ko { font-size: 22px; font-weight: 800; }
+  .pack .en { font-size: 15px; font-weight: 700; }
+  .pack .tag { font-size: 12.5px; color: #d6dbea; line-height: 1.3; }
+  .pack ul { list-style: none; font-size: 12.5px; color: var(--muted); display: flex; flex-direction: column; gap: 1px; margin-top: 2px; }
+  .pack .buy { margin-top: auto; display: flex; align-items: center; gap: 10px; }
+  .pack .buy .btn { min-height: 40px; padding: 8px 18px; }
+  .price { font-size: 22px; font-weight: 800; }
+  .confirm { display: grid; grid-template-columns: 280px 1fr; gap: 20px; height: 100%; }
+  .panel { display: flex; flex-direction: column; gap: 7px; justify-content: center; min-height: 0; }
+  .panel h2 { font-size: 23px; }
+  .line { display: flex; justify-content: space-between; font-size: 15px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .btns { display: flex; gap: 10px; margin-top: 4px; }
+  .btns .btn { min-height: 44px; padding: 9px 18px; }
+  .voice { font-size: 13px; color: var(--muted); }
+  .check { width: 44px; height: 44px; border-radius: 50%; background: var(--good); display: grid; place-items: center; color: #0b2b1b; font-size: 24px; font-weight: 900; }
+  html[data-mode="fullscreen"] .pack .ko { font-size: 28px; }
+  html[data-mode="fullscreen"] .pack .tag, html[data-mode="fullscreen"] .pack ul { font-size: 15px; }
+  .soon { opacity: 0.6; }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent" id="chip">Scene packs</span>
+    <span class="title" id="title">Unlock more scenes</span>
+    <span class="spacer"></span>
+    <span class="chip">Demo store · no real charges</span>
+  </div>
+  <div class="body" id="body"></div>
+</div>
+<script>
+  const E = DKS.esc;
+  function art(p) { return `background: radial-gradient(120% 90% at 100% 0%, ${p.accent}55 0%, transparent 60%), linear-gradient(160deg, ${p.accent}30, #151b2b 70%);`; }
+  function sceneList(p) {
+    return `<ul>${p.scenes.map((s) => s.available ? `<li>&#9679; ${E(s.title_en)}</li>` : `<li class="soon">&#9675; Coming soon</li>`).join("")}</ul>`;
+  }
+  function tile(p, noBuy) {
+    return `<div class="pack rise" style="${art(p)}"><div class="ko">${E(p.title_ko)}</div><div class="en">${E(p.title_en)}</div>
+      <div class="tag">${E(p.tagline_en)}</div>${sceneList(p)}
+      ${noBuy ? "" : `<div class="buy">${p.owned ? '<span class="chip good">Owned</span>' :
+        !p.scenes.some((s) => s.available) ? '<span class="chip">Coming soon</span>' :
+        `<span class="price">$${p.price_usd.toFixed(2)}</span><button class="btn" onclick="buy('${E(p.pack_id)}')">Buy</button>`}</div>`}</div>`;
+  }
+  async function act(args) {
+    try {
+      const r = await DKS.callTool("purchase_scene_pack", args);
+      if (r && r.isError) { document.getElementById("body").insertAdjacentHTML("beforeend", `<div class="chip bad">${E(r.content[0].text)}</div>`); return; }
+      render(r.structuredContent || {});
+    } catch (e) { console.error(e); }
+  }
+  window.buy = (pack) => act({ pack });
+  window.confirmBuy = (pack, token) => act({ pack, confirm: true, purchase_token: token });
+  window.cancelBuy = (pack, token) => act({ pack, cancel: true, purchase_token: token });
+  function render(d) {
+    const body = document.getElementById("body");
+    const chip = document.getElementById("chip"), title = document.getElementById("title");
+    if (d.view === "browse") {
+      chip.textContent = "Scene packs"; title.textContent = "Unlock more scenes";
+      body.innerHTML = `<div class="grid">${d.packs.map(tile).join("")}</div>`;
+      return;
+    }
+    const p = d.pack;
+    if (d.status === "awaiting_confirmation") {
+      chip.textContent = "Confirm purchase"; title.textContent = p.title_en;
+      body.innerHTML = `<div class="confirm">${tile(p, true)}
+        <div class="panel"><h2>Buy ${E(p.title_en)}?</h2>
+          <div class="line"><span>${p.scene_count} scenes</span><b>$${d.price_usd.toFixed(2)}</b></div>
+          <div class="line"><span>Pay with</span><span>${E(d.payment_method)}</span></div>
+          <div class="btns"><button class="btn" onclick="confirmBuy('${E(p.pack_id)}','${E(d.purchase_token)}')">Confirm purchase</button>
+            <button class="btn ghost" onclick="cancelBuy('${E(p.pack_id)}','${E(d.purchase_token)}')">Cancel</button></div>
+          <div class="voice">Or just say "yes" or "no". This request expires in ${d.expires_in_minutes} minutes.</div></div></div>`;
+      return;
+    }
+    if (d.status === "purchased" || d.status === "already_owned") {
+      chip.textContent = d.status === "purchased" ? "Purchase complete" : "Already yours"; title.textContent = p.title_en;
+      const ready = p.scenes.filter((s) => s.available);
+      body.innerHTML = `<div class="confirm"><div class="pack rise" style="${art(p)}"><div class="ko">${E(p.title_ko)}</div><div class="en">${E(p.title_en)}</div>${sceneList(p)}</div>
+        <div class="panel"><div class="check">&#10003;</div><h2>${d.status === "purchased" ? "Unlocked!" : "You own this pack"}</h2>
+          ${d.order_id ? `<div class="line"><span>Order</span><span>${E(d.order_id)}</span></div><div class="line"><span>Charged</span><span>$${d.price_usd.toFixed(2)} · demo wallet</span></div>` : ""}
+          ${ready.length ? `<div class="btns"><button class="btn" onclick="DKS.say('Start the ${E(ready[0].title_en)} scene')">Play "${E(ready[0].title_en)}"</button></div>` : ""}</div></div>`;
+      return;
+    }
+    if (d.status === "cancelled") {
+      chip.textContent = "Cancelled"; title.textContent = p.title_en;
+      body.innerHTML = `<div class="empty"><b style="font-size:24px;color:var(--ink)">No problem - nothing was charged.</b><span>The pack stays in the store whenever you want it.</span></div>`;
+    }
+  }
+  window.render = render;
+</script>

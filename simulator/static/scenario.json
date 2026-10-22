@@ -1,0 +1,40 @@
+{
+  "family": {
+    "Dad": {"voice": "voice-a", "lang": "en-US", "color": "#7dd3fc", "polly": {"VoiceId": "Matthew"}},
+    "Mom": {"voice": "voice-b", "lang": "en-US", "color": "#fda4af", "polly": {"VoiceId": "Joanna"}},
+    "Hannah": {"voice": "voice-c", "lang": "en-US", "color": "#ffb36b", "polly": {"VoiceId": "Ivy"}},
+    "Grandma": {"voice": "voice-d", "lang": "en-US", "color": "#c4b5fd", "polly": {"VoiceId": "Kimberly", "rate": "90%"}}
+  },
+  "steps": [
+    {"clock": "07:00", "who": "Dad", "text": "Good morning, it's Dad here. What time is it right now?", "note": "self-introduction - a name cue"},
+    {"who": "Mom", "text": "Morning, this is Mom. What's the date today, please?"},
+    {"who": "Hannah", "text": "Hi, it's Hannah. What day of the week is it today?"},
+    {"who": "Grandma", "text": "Good morning, dear. Could you tell me what time it is?"},
+    {"who": "Dad", "overheard": true, "text": "Grandma, good morning! Did you sleep well last night?", "note": "overheard: Dad calls Grandma"},
+    {"who": "Grandma", "overheard": true, "text": "Oh yes, I slept very well, thank you, dear.", "note": "overheard: Grandma answers"},
+    {"who": "Dad", "text": "How many minutes are left until eight o'clock?"},
+    {"who": "Mom", "text": "Is today a school day or a public holiday?"},
+    {"who": "Hannah", "text": "Okay, I'm leaving for school now. See you later!"},
+    {"who": "Grandma", "text": "Could you tell me what day of the week it is?"},
+    {"clock": "07:30", "who": "Mom", "overheard": true, "text": "Hannah, don't forget your lunch box today!", "note": "overheard: Mom calls Hannah"},
+    {"who": "Hannah", "overheard": true, "text": "Got it, thank you so much for reminding me.", "note": "overheard: Hannah answers"},
+    {"who": "Hannah", "overheard": true, "text": "Dad, can you drive me to the bus stop?"},
+    {"who": "Dad", "overheard": true, "text": "Of course, let's leave in about five minutes."},
+    {"who": "Dad", "overheard": true, "text": "Mom, have you seen my car keys anywhere?"},
+    {"who": "Mom", "overheard": true, "text": "They're on the kitchen table, next to the door."},
+    {"who": "Hannah", "overheard": true, "text": "Grandma, I'm leaving for school now!"},
+    {"who": "Grandma", "overheard": true, "text": "All right, sweetheart, be careful on the road."},
+    {"clock": "07:40", "who": "Dad", "text": "Tell Hannah to eat dinner tonight. There's kimchi stew in the fridge.", "note": "Dad leaves a message"},
+    {"who": "Mom", "text": "Tell Grandma her doctor's appointment is at three, and to take her pills after lunch."},
+    {"who": "Mom", "overheard": true, "text": "Grandma, I'm heading out to work now, see you tonight."},
+    {"who": "Grandma", "overheard": true, "text": "Okay, be safe out there and have a good day."},
+    {"clock": "12:20", "who": "Grandma", "clarity": "noisy", "text": "What should I have for lunch today, I wonder?", "note": "TV is loud - no delivery"},
+    {"who": "Grandma", "text": "Could you tell me what time it is now, please?", "note": "clear voice - Mom's message is passed on"},
+    {"clock": "18:05", "who": "Hannah", "text": "Hi, I'm home now. What time is it?", "note": "Dad's message is woven into the answer"},
+    {"who": "Hannah", "text": "Tell him it was delicious, thank you so much!"},
+    {"clock": "19:30", "who": "Dad", "text": "Did Hannah eat her dinner tonight?"},
+    {"who": "Dad", "text": "What's in the family memory right now?"},
+    {"who": "Mom", "text": "Which voices do you recognize in this house?"},
+    {"advance": 1440, "who": "Mom", "text": "What's in the family memory now?", "note": "24 hours later: everything has faded"}
+  ]
+}

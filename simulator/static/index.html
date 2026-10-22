@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Family Relay - Alexa+ add-on simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo"></span><b>Family Relay</b><span class="tagline">Alexa+ add-on simulator · real MCP client · voice-only identity</span></div>
+    <div class="conn" id="conn"><span class="led"></span><span id="conn-text">Connecting to MCP server...</span></div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="device">
+        <div class="bezel">
+          <div class="camera"></div>
+          <div class="screen" id="screen" data-mode="inline">
+            <div class="statusbar">
+              <span class="addon">Family Relay</span>
+              <span class="who-chip" id="who-chip"></span>
+              <span class="spacer"></span>
+              <span id="clock-label"></span>
+            </div>
+            <div class="ambient" id="ambient">
+              <div class="amb-time" id="amb-time">--:--</div>
+              <div class="amb-hint">Try <b>"Tell Sunhee to eat dinner"</b></div>
+            </div>
+            <div class="captions" id="captions">
+              <div class="you" id="cap-you"></div>
+              <div class="assistant" id="cap-assistant"></div>
+            </div>
+            <div class="card-slot" id="card-slot"></div>
+            <div class="voice-only" id="voice-only"><div class="orb big"></div><div>Voice-only device - no screen</div></div>
+            <div class="orb-dock"><div class="orb" id="orb"></div></div>
+            <button class="close-fs" id="close-fs" title="Back to inline">&#x2715;</button>
+          </div>
+        </div>
+        <div class="fabric"></div>
+      </div>
+
+      <div class="controls">
+        <div class="row">
+          <span class="label">Speaking now</span>
+          <div class="seg people" id="people"></div>
+          <div class="seg" id="clarity">
+            <button data-c="clear" class="on">Clear</button><button data-c="far">Far</button><button data-c="noisy">Noisy</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="mic" id="mic"><span class="dot"></span><span id="mic-label">Hold to talk</span></button>
+          <select id="lang"><option value="en-US">English</option><option value="ko-KR">한국어</option><option value="es-ES">Español</option></select>
+          <form class="typebox" id="typebox"><input id="text" autocomplete="off" placeholder="...or type what the selected person says"><button class="send" type="submit">Say</button></form>
+        </div>
+        <div class="row demo">
+          <button class="primary" id="play">&#9654; Play family scenario</button>
+          <span class="scenario-step" id="scenario-step"></span>
+          <span class="spacer"></span>
+          <span class="label">Clock</span>
+          <button class="ghost" data-adv="60">+1 h</button><button class="ghost" data-adv="360">+6 h</button><button class="ghost" data-adv="1440">+24 h</button>
+          <button class="ghost" id="reset">Reset family</button>
+        </div>
+        <div class="row demo">
+          <span class="label">Display</span>
+          <div class="seg" id="mode-seg"><button data-mode="inline" class="on">Inline</button><button data-mode="fullscreen">Fullscreen</button><button data-mode="voice-only">Voice-only</button></div>
+          <label class="toggle"><input type="checkbox" id="sound" checked> Sound</label>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel speaker" id="speaker-panel">
+        <div class="panel-head"><b>Voice recognition</b><span class="sub">no enrollment - voices group themselves</span><span class="spacer"></span><span class="mono" id="spk-module"></span></div>
+        <div class="spk-body">
+          <div class="spk-now">
+            <div class="spk-name" id="spk-name">-</div>
+            <div class="spk-state"><span class="chip" id="spk-state">waiting</span><span class="mono" id="spk-id"></span></div>
+            <div class="gauge"><div class="fill" id="spk-fill"></div><i style="left:50%"></i><i style="left:75%"></i></div>
+            <div class="gauge-legend"><span>0</span><span style="left:50%">tentative 0.50</span><span style="left:75%">confirmed 0.75</span><span style="right:0">1</span></div>
+            <div class="mono small" id="spk-audio"></div>
+            <div class="spk-decision" id="spk-decision"></div>
+          </div>
+          <svg id="spk-plot" viewBox="0 0 300 200"></svg>
+        </div>
+        <div class="spk-recent" id="spk-recent"></div>
+      </section>
+      <section class="panel log">
+        <div class="panel-head"><b>MCP traffic</b><span class="mono" id="log-meta"></span><span class="spacer"></span>
+          <label class="toggle small"><input type="checkbox" id="log-llm" checked> LLM</label>
+          <label class="toggle small"><input type="checkbox" id="log-ui" checked> Card bridge</label>
+          <button class="ghost small" id="log-clear">Clear</button></div>
+        <div class="legend"><span class="k mcp">MCP</span> JSON-RPC over Streamable HTTP <span class="k spk">VOICE</span> audio to speaker module <span class="k llm">LLM</span> assistant decision <span class="k ui">UI</span> MCP Apps postMessage</div>
+        <div class="log-list" id="log-list"></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="/static/mcp-client.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

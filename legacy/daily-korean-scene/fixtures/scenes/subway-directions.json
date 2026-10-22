@@ -1,0 +1,31 @@
+{
+  "scene_id": "subway-directions",
+  "title_en": "Lost at Seoul Station",
+  "title_ko": "서울역에서 길 묻기",
+  "level": "beginner",
+  "setting_en": "You need to get to Gyeongbokgung Palace and ask a station attendant for help.",
+  "characters": [
+    {"id": "attendant", "name_ko": "박 역무원", "role_en": "Station attendant", "voice": "default-male"}
+  ],
+  "lines": [
+    {"id": "l01", "speaker": "narrator", "ko": "", "romanization": "", "en": "The ticket gates are crowded. You walk up to the help desk.", "audio": null, "hints_en": ""},
+    {"id": "l02", "speaker": "learner", "ko": "실례합니다. 경복궁에 어떻게 가요?", "romanization": "sillyehamnida. gyeongbokgung-e eotteoke gayo?", "en": "Excuse me. How do I get to Gyeongbokgung?", "audio": null,
+     "expected": ["실례합니다 경복궁에 어떻게 가요", "저기요 경복궁에 어떻게 가요", "경복궁에 어떻게 가요", "실례합니다 경복궁 어떻게 가요"],
+     "hints_en": "Get attention politely (실례합니다) and ask how to go: ~에 어떻게 가요?"},
+    {"id": "l03", "speaker": "attendant", "ko": "1호선을 타고 종로3가에서 3호선으로 갈아타세요.", "romanization": "iroseoneul tago jongno-samga-eseo samhoseoneuro garataseyo.", "en": "Take Line 1 and transfer to Line 3 at Jongno 3-ga.", "audio": null, "hints_en": ""},
+    {"id": "l04", "speaker": "learner", "ko": "몇 정거장이에요?", "romanization": "myeot jeonggeojangieyo?", "en": "How many stops is it?", "audio": null,
+     "expected": ["몇 정거장이에요", "몇 정거장 가요", "몇 정류장이에요", "몇 역이에요"],
+     "hints_en": "Ask how many stops: 몇 (how many) + 정거장 (stops) + 이에요?"},
+    {"id": "l05", "speaker": "attendant", "ko": "모두 여섯 정거장이에요. 경복궁역에서 내리세요.", "romanization": "modu yeoseot jeonggeojangieyo. gyeongbokgung-yeogeseo naeriseyo.", "en": "Six stops in total. Get off at Gyeongbokgung Station.", "audio": null, "hints_en": ""},
+    {"id": "l06", "speaker": "learner", "ko": "정말 감사합니다.", "romanization": "jeongmal gamsahamnida.", "en": "Thank you so much.", "audio": null,
+     "expected": ["정말 감사합니다", "감사합니다", "정말 고맙습니다", "고맙습니다"],
+     "hints_en": "Thank them warmly in formal polite speech."},
+    {"id": "l07", "speaker": "attendant", "ko": "천만에요. 즐거운 여행 되세요!", "romanization": "cheonmaneyo. jeulgeoun yeohaeng doeseyo!", "en": "You're welcome. Have a great trip!", "audio": null, "hints_en": ""}
+  ],
+  "review_targets": [
+    {"expr_ko": "실례합니다", "en": "excuse me", "note": "Polite way to get a stranger's attention."},
+    {"expr_ko": "어떻게 가요", "en": "how do I get (there)", "note": "Place + 에 어떻게 가요?"},
+    {"expr_ko": "갈아타세요", "en": "transfer (lines)", "note": "갈아타다 = change trains."},
+    {"expr_ko": "몇 정거장", "en": "how many stops", "note": "몇 + counter asks 'how many'."}
+  ]
+}

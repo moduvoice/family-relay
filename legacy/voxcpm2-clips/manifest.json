@@ -1,0 +1,23 @@
+{
+ "steps": {
+  "0": "s00-dad.wav",
+  "1": "s01-sunhee.wav",
+  "2": "s02-mom.wav",
+  "3": "s03-grandma.wav",
+  "4": "s04-dad.wav",
+  "5": "s05-sunhee.wav",
+  "6": "s06-mom.wav",
+  "7": "s07-grandma.wav",
+  "8": "s08-dad.wav",
+  "9": "s09-mom.wav",
+  "10": "s10-grandma.wav",
+  "11": "s11-grandma.wav",
+  "12": "s12-sunhee.wav",
+  "13": "s13-sunhee.wav",
+  "14": "s14-dad.wav",
+  "15": "s15-dad.wav",
+  "16": "s16-mom.wav",
+  "17": "s17-mom.wav"
+ },
+ "sample_rate": 16000
+}

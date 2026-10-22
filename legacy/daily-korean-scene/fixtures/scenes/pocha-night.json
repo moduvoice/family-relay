@@ -1,0 +1,29 @@
+{
+  "scene_id": "pocha-night",
+  "title_en": "Late Night at a Pojangmacha",
+  "title_ko": "포장마차의 밤",
+  "level": "intermediate",
+  "setting_en": "A street tent bar in Euljiro after work. The owner is busy but friendly.",
+  "characters": [
+    {"id": "owner", "name_ko": "이모", "role_en": "Owner", "voice": "default-female"}
+  ],
+  "lines": [
+    {"id": "l01", "speaker": "owner", "ko": "몇 분이세요?", "romanization": "myeot buniseyo?", "en": "How many people?", "audio": null, "hints_en": ""},
+    {"id": "l02", "speaker": "learner", "ko": "두 명이에요.", "romanization": "du myeongieyo.", "en": "Two people.", "audio": null,
+     "expected": ["두 명이에요", "두 명이요", "둘이에요", "두 명입니다"],
+     "hints_en": "Native number 두 + counter 명 + 이에요."},
+    {"id": "l03", "speaker": "owner", "ko": "이쪽으로 앉으세요. 뭐 드릴까요?", "romanization": "ijjogeuro anjeuseyo. mwo deurilkkayo?", "en": "Sit over here. What can I get you?", "audio": null, "hints_en": ""},
+    {"id": "l04", "speaker": "learner", "ko": "떡볶이 하나랑 어묵탕 하나 주세요.", "romanization": "tteokbokki hanarang eomuktang hana juseyo.", "en": "One tteokbokki and one fish cake soup, please.", "audio": null,
+     "expected": ["떡볶이 하나랑 어묵탕 하나 주세요", "떡볶이하고 어묵탕 하나씩 주세요", "떡볶이 하나 어묵탕 하나 주세요"],
+     "hints_en": "Join two items with 랑 or 하고, then 주세요."},
+    {"id": "l05", "speaker": "owner", "ko": "많이 매운데 괜찮아요?", "romanization": "mani maeunde gwaenchanayo?", "en": "It's really spicy, is that okay?", "audio": null, "hints_en": ""},
+    {"id": "l06", "speaker": "learner", "ko": "덜 맵게 해 주실 수 있어요?", "romanization": "deol maepge hae jusil su isseoyo?", "en": "Could you make it less spicy?", "audio": null,
+     "expected": ["덜 맵게 해 주실 수 있어요", "덜 맵게 해 주세요", "조금 덜 맵게 해 주세요", "덜 맵게 해 주시겠어요"],
+     "hints_en": "덜 (less) + 맵게 (spicy-ly) + 해 주실 수 있어요? (could you do it for me?)"}
+  ],
+  "review_targets": [
+    {"expr_ko": "몇 분이세요", "en": "how many people (honorific)", "note": "분 is the honorific counter for people."},
+    {"expr_ko": "하나랑", "en": "one and", "note": "랑 joins nouns in casual-polite speech."},
+    {"expr_ko": "덜 맵게", "en": "less spicy", "note": "덜 = less; -게 turns an adjective into an adverb."}
+  ]
+}

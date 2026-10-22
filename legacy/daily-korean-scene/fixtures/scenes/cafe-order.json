@@ -1,0 +1,37 @@
+{
+  "scene_id": "cafe-order",
+  "title_en": "Ordering at a Seoul Cafe",
+  "title_ko": "카페에서 주문하기",
+  "level": "beginner",
+  "setting_en": "A busy cafe near Hongdae on a weekday morning. You want an iced americano to go.",
+  "characters": [
+    {"id": "barista", "name_ko": "민지", "role_en": "Barista", "voice": "default-female"}
+  ],
+  "lines": [
+    {"id": "l01", "speaker": "narrator", "ko": "", "romanization": "", "en": "You step up to the counter. The barista smiles at you.", "audio": null, "hints_en": ""},
+    {"id": "l02", "speaker": "barista", "ko": "어서 오세요. 주문하시겠어요?", "romanization": "eoseo oseyo. jumunhasigesseoyo?", "en": "Welcome. Are you ready to order?", "audio": null, "hints_en": ""},
+    {"id": "l03", "speaker": "learner", "ko": "아이스 아메리카노 한 잔 주세요.", "romanization": "aiseu amerikano han jan juseyo.", "en": "One iced americano, please.", "audio": null,
+     "expected": ["아이스 아메리카노 한 잔 주세요", "아이스 아메리카노 하나 주세요", "아이스 아메리카노 주세요", "아아 한 잔 주세요"],
+     "hints_en": "Order one iced americano politely. Use 한 잔 (one cup) + 주세요 (please give me)."},
+    {"id": "l04", "speaker": "barista", "ko": "사이즈는 어떤 걸로 드릴까요?", "romanization": "saijeuneun eotteon geollo deurilkkayo?", "en": "What size would you like?", "audio": null, "hints_en": ""},
+    {"id": "l05", "speaker": "learner", "ko": "큰 걸로 주세요.", "romanization": "keun geollo juseyo.", "en": "A large one, please.", "audio": null,
+     "expected": ["큰 걸로 주세요", "큰 사이즈로 주세요", "라지로 주세요", "큰 거 주세요"],
+     "hints_en": "Ask for the large one: 큰 걸로 (the big one) + 주세요."},
+    {"id": "l06", "speaker": "barista", "ko": "드시고 가세요, 아니면 가져가세요?", "romanization": "deusigo gaseyo, animyeon gajyeogaseyo?", "en": "For here, or to go?", "audio": null, "hints_en": ""},
+    {"id": "l07", "speaker": "learner", "ko": "가져갈게요.", "romanization": "gajyeogalgeyo.", "en": "I'll take it to go.", "audio": null,
+     "expected": ["가져갈게요", "가져갈게요 감사합니다", "테이크아웃이요", "테이크아웃할게요", "포장해 주세요"],
+     "hints_en": "Say you'll take it with you: 가져가다 (take away) + -ㄹ게요 (I will)."},
+    {"id": "l08", "speaker": "barista", "ko": "네, 사천오백 원입니다. 카드로 하시겠어요?", "romanization": "ne, sacheon-obaek wonimnida. kadeuro hasigesseoyo?", "en": "Okay, that's 4,500 won. Will you pay by card?", "audio": null, "hints_en": ""},
+    {"id": "l09", "speaker": "learner", "ko": "네, 카드로 할게요.", "romanization": "ne, kadeuro halgeyo.", "en": "Yes, I'll pay by card.", "audio": null,
+     "expected": ["네 카드로 할게요", "카드로 할게요", "네 카드로 계산할게요", "카드로 계산할게요"],
+     "hints_en": "Say yes and that you'll use a card: 카드로 (by card) + 할게요 (I'll do)."},
+    {"id": "l10", "speaker": "barista", "ko": "감사합니다. 진동벨이 울리면 가지러 오세요.", "romanization": "gamsahamnida. jindongberi ullimyeon gajireo oseyo.", "en": "Thank you. Please come pick it up when the buzzer goes off.", "audio": null, "hints_en": ""}
+  ],
+  "review_targets": [
+    {"expr_ko": "주세요", "en": "please give me", "note": "Polite request ending. 줘 is casual and sounds rude to a stranger."},
+    {"expr_ko": "한 잔", "en": "one cup", "note": "Native number 한 + counter 잔 for drinks."},
+    {"expr_ko": "걸로", "en": "(I'll go) with the one", "note": "것으로 shortened: 큰 걸로 = the big one."},
+    {"expr_ko": "가져갈게요", "en": "I'll take it (with me)", "note": "-ㄹ게요 announces your decision politely."},
+    {"expr_ko": "카드로 할게요", "en": "I'll pay by card", "note": "-로 marks the means: 카드로, 현금으로."}
+  ]
+}

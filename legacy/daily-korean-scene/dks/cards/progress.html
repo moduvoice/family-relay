@@ -1,0 +1,87 @@
+<style>
+  .wrap { height: calc(100% - 56px); position: relative; }
+  .carousel { height: 100%; }
+  .pane { height: 100%; padding: 4px 64px 22px; display: flex; gap: 34px; align-items: center; }
+  .big { font-size: 72px; font-weight: 800; line-height: 1; }
+  .big small { font-size: 22px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+  .cap { font-size: 13px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); font-weight: 700; margin-bottom: 8px; }
+  .week { display: flex; gap: 10px; }
+  .day { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; }
+  .day i { width: 38px; height: 38px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.14); display: grid; place-items: center; font-style: normal; font-weight: 800; color: #10141f; }
+  .day i.completed { background: var(--good); border-color: var(--good); }
+  .day i.in_progress { border-color: var(--warn); }
+  .day.today { color: var(--ink); font-weight: 700; }
+  .flame { width: 70px; height: 86px; }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat b { font-size: 30px; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .bars { display: flex; gap: 14px; align-items: flex-end; height: 140px; }
+  .bar { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .bar div { width: 40px; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, var(--accent-2), var(--accent)); min-height: 4px; }
+  .weak { display: flex; flex-direction: column; gap: 8px; }
+  .weak div { font-size: 15px; }
+  .weak .ko { font-size: 19px; font-weight: 700; margin-right: 8px; }
+  .packs { display: flex; flex-direction: column; gap: 8px; }
+  .tile { padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,0.06); font-size: 15px; }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent">Progress</span>
+    <span class="title" id="title">Your Korean journey</span>
+    <span class="spacer"></span>
+    <div class="dots" id="dots"></div>
+    <button class="fs-btn" title="Full screen" onclick="DKS.setMode('fullscreen')">&#x26F6;</button>
+  </div>
+  <div class="wrap">
+    <div class="carousel"><div class="track" id="track"></div></div>
+    <button class="nav prev" onclick="go(-1)">&#x2039;</button>
+    <button class="nav next" onclick="go(1)">&#x203A;</button>
+  </div>
+</div>
+<script>
+  const E = DKS.esc;
+  let idx = 0, count = 0, timer = null;
+  function ring(pct) {
+    const r = 52, c = 2 * Math.PI * r, v = pct == null ? 0 : pct;
+    return `<svg width="140" height="140" viewBox="0 0 140 140"><circle cx="70" cy="70" r="${r}" stroke="rgba(255,255,255,0.1)" stroke-width="14" fill="none"/>
+      <circle cx="70" cy="70" r="${r}" stroke="url(#g)" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="${c * v / 100} ${c}" transform="rotate(-90 70 70)"/>
+      <defs><linearGradient id="g"><stop offset="0" stop-color="#ffb36b"/><stop offset="1" stop-color="#ff7a59"/></linearGradient></defs>
+      <text x="70" y="80" text-anchor="middle" fill="#f5f1e8" font-size="30" font-weight="800" font-family="Segoe UI, sans-serif">${pct == null ? "-" : pct + "%"}</text></svg>`;
+  }
+  const flame = `<svg class="flame" viewBox="0 0 70 86"><defs><linearGradient id="f" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff5a3c"/><stop offset="1" stop-color="#ffc56b"/></linearGradient></defs>
+    <path d="M35 4c4 16 22 24 22 46a22 22 0 0 1-44 0c0-10 5-16 10-22 1 8 5 12 9 12-2-12 1-24 3-36z" fill="url(#f)"/></svg>`;
+  function step(d) { idx = (idx + d + count) % count; draw(); }
+  window.go = (d) => { clearInterval(timer); step(d); };
+  function draw() {
+    document.getElementById("track").style.transform = `translateX(-${idx * 100}%)`;
+    let h = ""; for (let i = 0; i < count; i++) h += `<i class="${i === idx ? "on" : ""}"></i>`;
+    document.getElementById("dots").innerHTML = h;
+  }
+  window.render = function (p) {
+    const slides = [];
+    slides.push(`<div class="slide"><div class="pane">${flame}<div><div class="cap">Streak</div>
+      <div class="big">${p.streak}<small>day${p.streak === 1 ? "" : "s"}</small></div>
+      <div class="muted" style="margin-top:6px">Best ${p.best_streak} · ${p.xp} XP</div></div>
+      <div style="margin-left:auto"><div class="cap">This week</div><div class="week">${p.week.map((d) =>
+        `<div class="day ${d.is_today ? "today" : ""}"><i class="${d.status}">${d.status === "completed" ? "&#10003;" : ""}</i>${d.weekday}</div>`).join("")}</div></div></div></div>`);
+    slides.push(`<div class="slide"><div class="pane">${ring(p.accuracy_first_try)}
+      <div class="stat"><div class="cap">Right first try</div><b>${p.turns_answered}</b><span>lines spoken</span>
+      <b style="margin-top:10px">${p.days_practiced}</b><span>scene days completed</span></div>
+      <div class="stat" style="margin-left:auto;max-width:230px"><div class="cap">Scenes</div>${p.scenes_completed.map((s) =>
+        `<div style="font-size:15px;margin-bottom:6px">${E(s.title_en)}<br><span class="ko muted">${E(s.title_ko)}</span></div>`).join("") || '<span>None yet</span>'}</div></div></div>`);
+    const max = Math.max(1, ...p.review.boxes);
+    slides.push(`<div class="slide"><div class="pane"><div><div class="cap">Review queue · ${p.review.due_today} due today</div>
+      <div class="bars">${p.review.boxes.map((n, i) => `<div class="bar"><b style="color:var(--ink)">${n}</b><div style="height:${Math.round(100 * n / max)}px;opacity:${0.45 + i * 0.11}"></div>${i === 0 ? "new" : p.review.box_days[i] + "d"}</div>`).join("")}</div></div>
+      <div class="weak" style="margin-left:auto"><div class="cap">Needs love</div>${p.review.weakest.map((w) =>
+        `<div><span class="ko">${E(w.ko)}</span><span class="muted">${E(w.en)}</span></div>`).join("") || '<div class="muted">Nothing yet</div>'}</div></div></div>`);
+    const s = p.schedule;
+    slides.push(`<div class="slide"><div class="pane"><div style="flex:1"><div class="cap">Practice plan</div>
+      ${s ? `<div style="font-size:30px;font-weight:800">${E(s.next_label)}</div><div class="muted">${E(s.days.join(" · "))} at ${E(s.time_local)} · ${E(s.timezone)}</div>` : '<div class="muted" style="font-size:18px">No schedule yet - say "remind me to practice every weekday at 7:30".</div>'}</div>
+      <div style="flex:1"><div class="cap">Scene packs</div><div class="packs">${p.packs_owned.map((pk) =>
+        `<div class="tile" style="border-left:4px solid ${pk.accent}">${E(pk.title_en)} <span class="ko muted">${E(pk.title_ko)}</span></div>`).join("") || '<div class="muted">Free scenes only</div>'}</div></div></div></div>`);
+    document.getElementById("track").innerHTML = slides.join("");
+    count = slides.length; idx = 0; draw();
+    clearInterval(timer);
+    timer = setInterval(() => step(1), 5000);
+  };
+</script>

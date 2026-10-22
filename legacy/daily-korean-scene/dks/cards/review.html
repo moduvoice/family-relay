@@ -1,0 +1,88 @@
+<style>
+  .wrap { height: calc(100% - 56px); position: relative; }
+  .carousel { height: 100%; }
+  .flash { height: 100%; padding: 6px 70px 18px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .q-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); font-weight: 700; }
+  .q { font-size: 28px; font-weight: 700; line-height: 1.2; }
+  .yday { font-size: 14px; color: var(--muted); }
+  .yday .ko { color: #ffb4b4; }
+  .answer { display: flex; flex-direction: column; gap: 4px; }
+  .answer .k { font: 700 28px/1.3 var(--ko); }
+  .answer .r { font-size: 14px; color: var(--dim); font-style: italic; }
+  .box { display: flex; gap: 5px; align-items: center; font-size: 13px; color: var(--muted); }
+  .box i { width: 22px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.12); display: block; }
+  .box i.on { background: var(--good); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .hidden-answer { font: 700 28px var(--ko); color: transparent; text-shadow: 0 0 14px rgba(255,255,255,0.45); user-select: none; }
+  .note { font-size: 14px; color: var(--muted); }
+  html[data-mode="fullscreen"] .q { font-size: 34px; }
+  html[data-mode="fullscreen"] .answer .k { font-size: 34px; }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent">Review</span>
+    <span class="title">Yesterday's tricky lines</span>
+    <span class="spacer"></span>
+    <div class="dots" id="dots"></div>
+    <button class="fs-btn" title="Full screen" onclick="DKS.setMode('fullscreen')">&#x26F6;</button>
+  </div>
+  <div class="wrap" id="wrap">
+    <div class="carousel"><div class="track" id="track"></div></div>
+    <button class="nav prev" onclick="go(-1)">&#x2039;</button>
+    <button class="nav next" onclick="go(1)">&#x203A;</button>
+  </div>
+</div>
+<script>
+  const R = { cards: [], results: {}, index: 0 };
+  const E = DKS.esc;
+  function boxHtml(n) {
+    let h = "";
+    for (let i = 1; i <= 5; i++) h += `<i class="${i <= n ? "on" : ""}"></i>`;
+    return `<div class="box">${h}<span>${n ? "level " + n : "new"}</span></div>`;
+  }
+  function slide(c) {
+    const res = R.results[c.item_id];
+    let body;
+    if (res) {
+      const g = res.grade;
+      const spans = (g.issues || []).filter((i) => i.learner_span_found).map((i) => i.learner_span);
+      body = `<div class="row"><span class="chip ${g.verdict === "correct" ? "good" : g.verdict === "close" ? "warn" : "bad"}">${DKS.verdictLabel(g.verdict)}</span>
+          <span class="note">You said: <span class="ko">${DKS.markAll(res.answer_ko, spans, "bad")}</span></span></div>
+        <div class="answer rise"><div class="k">${E(res.card.answer_ko)}</div><div class="r">${E(res.card.answer_romanization)}</div></div>
+        ${res.card.focus_ko ? `<div class="note"><b class="ko">${E(res.card.focus_ko)}</b> - ${E(res.card.focus_note)}</div>` : ""}
+        <div class="row">${boxHtml(res.box)}<span class="note">Next review: ${E(res.next_review_day)}</span></div>`;
+    } else {
+      body = `<div class="hidden-answer">●●●● ●●●</div>
+        ${c.last_answer ? `<div class="yday">Last time you said <span class="ko">${E(c.last_answer)}</span></div>` : ""}
+        <div class="note">Say it in Korean.${c.hint_en ? " Hint: " + E(c.hint_en) : ""}</div>`;
+    }
+    return `<div class="slide"><div class="flash">
+      <div class="q-label">Card ${c.position} of ${c.total}</div>
+      <div class="q">"${E(c.prompt_en)}"</div>${body}</div></div>`;
+  }
+  function draw() {
+    document.getElementById("track").innerHTML = R.cards.map(slide).join("");
+    document.getElementById("track").style.transform = `translateX(-${R.index * 100}%)`;
+    document.getElementById("dots").innerHTML = R.cards.map((c, i) => {
+      const r = R.results[c.item_id];
+      return `<i class="${r ? (r.grade.verdict === "correct" ? "done" : "miss") : i === R.index ? "on" : ""}"></i>`;
+    }).join("");
+  }
+  function go(d) { R.index = Math.max(0, Math.min(R.cards.length - 1, R.index + d)); draw(); }
+  window.go = go;
+  window.render = function (sc) {
+    if (sc.status === "nothing_due") {
+      document.getElementById("wrap").innerHTML = `<div class="empty"><b style="font-size:24px;color:var(--ink)">All caught up</b>
+        <span>${sc.total_items ? "Next review on " + E(sc.next_due_day) : "Mistakes from your scenes will show up here the next day."}</span></div>`;
+      return;
+    }
+    if (sc.cards) { R.cards = sc.cards; R.results = {}; R.index = sc.current || 0; draw(); return; }
+    if (sc.card) {
+      R.results[sc.card.item_id] = sc;
+      const i = R.cards.findIndex((c) => c.item_id === sc.card.item_id);
+      if (i >= 0) R.index = i;
+      draw();
+      if (sc.next_card) setTimeout(() => { R.index = Math.min(R.cards.length - 1, i + 1); draw(); }, 2600);
+    }
+  };
+</script>

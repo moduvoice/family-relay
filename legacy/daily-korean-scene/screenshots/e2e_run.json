@@ -1,0 +1,163 @@
+{
+  "scene_id": "cafe-order",
+  "steps": [
+    {
+      "screenshot": "01-home.png"
+    },
+    {
+      "input": "Let's practice Korean",
+      "llm_steps": [
+        "tool_use start_daily_scene",
+        "reply"
+      ],
+      "seconds": 3.6,
+      "assistant": "You're at a café in Seoul with your coworker. The barista is asking what you'd like—go ahead and order one iced americano, please.",
+      "errors": [],
+      "screenshot": "02-scene-start.png"
+    },
+    {
+      "input": "아이스 아메리카노 한 잔 줘",
+      "llm_steps": [
+        "tool_use submit_learner_turn",
+        "reply"
+      ],
+      "seconds": 7.3,
+      "assistant": "Great job with the order—just use 주세요 instead of 줘 to sound polite to the café staff. Now the barista is asking what size you'd like—go ahead and ask for a large one.",
+      "errors": [],
+      "screenshot": "03-feedback.png"
+    },
+    {
+      "input": "큰 걸로 주세요",
+      "llm_steps": [
+        "tool_use submit_learner_turn",
+        "reply"
+      ],
+      "seconds": 3.6,
+      "assistant": "Perfect—that's exactly how a local would say it! Now the barista is asking if you want it for here or to go. Tell her you'll have it here.",
+      "errors": [],
+      "screenshot": "04-next-turn.png"
+    },
+    {
+      "input": "먹고 갈게요",
+      "llm_steps": [
+        "tool_use submit_learner_turn",
+        "reply"
+      ],
+      "seconds": 3.9,
+      "assistant": "Excellent! The barista is telling you the total and asking how you'd like to pay. Tell her you'll pay by card.",
+      "errors": []
+    },
+    {
+      "input": "카드로 할게요",
+      "llm_steps": [
+        "tool_use submit_learner_turn",
+        "reply"
+      ],
+      "seconds": 3.7,
+      "assistant": "Perfect! Jisu is offering to pay for you this time. Thank her for treating you.",
+      "errors": []
+    },
+    {
+      "input": "진짜요? 고마워요",
+      "llm_steps": [
+        "tool_use submit_learner_turn",
+        "reply"
+      ],
+      "seconds": 4.5,
+      "assistant": "Fantastic! You nailed that café scene—you got four lines right on the first try, and one line is saved for review tomorrow to help it stick. You're on a 1-day streak now!",
+      "errors": []
+    },
+    {
+      "screenshot": "07-next-day.png"
+    },
+    {
+      "input": "Let's review yesterday's phrases",
+      "llm_steps": [
+        "tool_use get_review_queue",
+        "reply"
+      ],
+      "seconds": 3.5,
+      "assistant": "You have one review card due today. Ready when you are—say the Korean for \"One iced americano, please.\"",
+      "errors": [],
+      "screenshot": "08-review-card.png"
+    },
+    {
+      "input": "아이스 아메리카노 한 잔 주세요",
+      "llm_steps": [
+        "tool_use submit_review_answer",
+        "reply"
+      ],
+      "seconds": 3.9,
+      "assistant": "Perfect—that's exactly how a local would say it. You're all set with your review!",
+      "errors": [],
+      "screenshot": "09-review-graded.png"
+    },
+    {
+      "input": "How am I doing?",
+      "llm_steps": [
+        "tool_use get_progress",
+        "reply"
+      ],
+      "seconds": 3.6,
+      "assistant": "You're on a one-day streak with eighty percent accuracy—great start! You've completed one scene and all your review cards are caught up.",
+      "errors": [],
+      "screenshot": "10-progress-carousel.png"
+    },
+    {
+      "input": "What scene packs can I get?",
+      "llm_steps": [
+        "tool_use browse_scene_packs",
+        "reply"
+      ],
+      "seconds": 3.9,
+      "assistant": "You can get Office Life in Seoul for two ninety-nine—it has one scene available so far with more coming. Seoul After Dark isn't on sale yet, but it's coming soon.",
+      "errors": [],
+      "screenshot": "11-scene-packs.png"
+    },
+    {
+      "input": "I'd like to buy the Office Life pack",
+      "llm_steps": [
+        "tool_use purchase_scene_pack",
+        "reply"
+      ],
+      "seconds": 3.7,
+      "assistant": "Office Life in Seoul is two ninety-nine—does that work for you?",
+      "errors": [],
+      "screenshot": "12-purchase-confirm.png"
+    },
+    {
+      "input": "Yes, buy it",
+      "llm_steps": [
+        "tool_use purchase_scene_pack",
+        "reply"
+      ],
+      "seconds": 4.1,
+      "assistant": "Done! You've unlocked Lunch at a Kimchi Stew Place, with two more scenes coming soon to that pack.",
+      "errors": [],
+      "screenshot": "13-purchased.png"
+    },
+    {
+      "input": "Remind me to practice every weekday at 7:30 in the morning",
+      "llm_steps": [
+        "tool_use schedule_practice",
+        "reply"
+      ],
+      "seconds": 4.2,
+      "assistant": "You're all set—I'll remind you to practice every weekday at seven thirty in the morning, starting Friday.",
+      "errors": [],
+      "screenshot": "14-schedule.png"
+    },
+    {
+      "input": "How am I doing?",
+      "llm_steps": [
+        "tool_use get_progress",
+        "reply"
+      ],
+      "seconds": 4.2,
+      "assistant": "Still on your one-day streak with eighty percent accuracy and fifty XP. Your next practice reminder is Friday at seven thirty in the morning.",
+      "errors": [],
+      "screenshot": "15-voice-only.png"
+    }
+  ],
+  "console_errors": []
+}

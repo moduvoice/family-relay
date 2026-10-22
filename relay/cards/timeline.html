@@ -1,0 +1,73 @@
+<style>
+  .wrap { height: calc(100% - 56px); position: relative; }
+  .carousel { height: 100%; }
+  .pane { height: 100%; padding: 0 62px 20px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .cap { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--accent-2); font-weight: 700; }
+  .item { display: grid; grid-template-columns: 150px 1fr 120px; gap: 12px; align-items: center; padding: 8px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+  .who { font-weight: 700; font-size: 15px; }
+  .who small { display: block; color: var(--muted); font-weight: 500; font-size: 12px; }
+  .txt { font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; word-break: keep-all; }
+  .txt.priv { color: var(--dim); font-style: italic; }
+  .life { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  .life div { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .life div span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+  .ev { display: flex; gap: 12px; font-size: 14px; padding: 3px 0; }
+  .ev .t { color: var(--dim); width: 70px; flex: 0 0 70px; }
+  .ev .k { width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex: 0 0 10px; }
+  .k.left { background: var(--accent-2); } .k.delivered { background: var(--good); } .k.reply { background: #7dd3fc; }
+  .k.expired { background: #6b7690; } .k.notification { background: #c4b5fd; }
+  .gone { text-decoration: line-through; color: var(--dim); }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent">Family memory</span>
+    <span class="title" id="title">Last 24 hours</span>
+    <span class="spacer"></span>
+    <div class="dots" id="dots"></div>
+    <button class="fs-btn" title="Full screen" onclick="DKS.setMode('fullscreen')">&#x26F6;</button>
+  </div>
+  <div class="wrap">
+    <div class="carousel"><div class="track" id="track"></div></div>
+    <button class="nav prev" onclick="go(-1)">&#x2039;</button>
+    <button class="nav next" onclick="go(1)">&#x203A;</button>
+  </div>
+</div>
+<script>
+  const E = DKS.esc;
+  let idx = 0, count = 0, timer = null;
+  function step(d) { idx = (idx + d + count) % count; draw(); }
+  window.go = (d) => { clearInterval(timer); step(d); };
+  function draw() {
+    document.getElementById("track").style.transform = `translateX(-${idx * 100}%)`;
+    let h = ""; for (let i = 0; i < count; i++) h += `<i class="${i === idx ? "on" : ""}"></i>`;
+    document.getElementById("dots").innerHTML = h;
+  }
+  function item(m, ttl) {
+    const left = Math.max(0, Math.min(1, m.expires_in_min / (ttl * 60)));
+    const txt = m.text ? `<div class="txt" lang="${E(m.lang || "")}">${E(m.text)}</div>` :
+      m.status === "expired" ? `<div class="txt priv">erased</div>` : `<div class="txt priv">private to ${E(m.sender_name || "sender")} and ${E(m.recipient_name)}</div>`;
+    const st = m.status === "delivered" ? `<span class="chip good">heard ${E(m.delivered_label)}</span>` :
+      m.status === "pending" ? `<span class="chip warn">waiting</span>` : `<span class="chip">expired</span>`;
+    return `<div class="item rise"><div class="who">${E(m.sender_name || "Someone")} &rarr; ${E(m.recipient_name)}<small>${E(m.kind)} · ${E(m.created_label)}</small></div>
+      <div style="min-width:0">${txt}<div style="margin-top:4px">${st}</div></div>
+      <div class="life">${m.status === "expired" ? "gone" : E(Math.floor(m.expires_in_min / 60) + "h " + (m.expires_in_min % 60) + "m left")}<div><span style="width:${left * 100}%"></span></div></div></div>`;
+  }
+  window.render = function (d) {
+    const slides = [];
+    const live = d.live.slice(document.documentElement.dataset.mode === "fullscreen" ? -5 : -3);
+    slides.push(`<div class="slide"><div class="pane"><div class="cap">Live now · ${d.live.length} item(s)${d.viewer ? " · seen by " + E(d.viewer) : ""}</div>
+      ${live.map((m) => item(m, d.ttl_hours)).join("") || '<div class="empty">Nothing in the family memory right now.</div>'}</div></div>`);
+    slides.push(`<div class="slide"><div class="pane"><div class="cap">Fading soon</div>
+      ${d.expiring_soon.slice(0, 4).map((m) => item(m, d.ttl_hours)).join("") || '<div class="muted" style="font-size:15px">Nothing expires in the next 3 hours.</div>'}
+      ${d.expired.length ? `<div class="cap" style="margin-top:6px">Already forgotten</div>` + d.expired.slice(-2).map((m) =>
+        `<div class="ev"><span class="t">${E(m.expires_label)}</span><span class="gone">${E(m.sender_name || "Someone")} &rarr; ${E(m.recipient_name)}</span></div>`).join("") : ""}</div></div>`);
+    slides.push(`<div class="slide"><div class="pane"><div class="cap">Timeline</div>
+      ${d.events.slice(-9).map((e) => `<div class="ev"><span class="t">${E(e.ts_label)}</span><span class="k ${E(e.kind.replace("identity_", ""))}"></span><span>${E(e.text)}</span></div>`).join("")}</div></div>`);
+    slides.push(`<div class="slide"><div class="pane"><div class="cap">Sent to phones</div>
+      ${d.notifications.slice(-6).map((n) => `<div class="ev"><span class="t">${E(n.ts_label)}</span><span class="k notification"></span><span><b>${E(n.to || "")}</b> · ${E(n.text)}${n.webhook ? " · webhook " + E(n.webhook) : ""}</span></div>`).join("")
+        || '<div class="muted" style="font-size:15px">Delivery receipts appear here.</div>'}</div></div>`);
+    document.getElementById("track").innerHTML = slides.join("");
+    count = slides.length; idx = 0; draw();
+    clearInterval(timer); timer = setInterval(() => step(1), 6000);
+  };
+</script>

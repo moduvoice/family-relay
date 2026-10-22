@@ -1,0 +1,90 @@
+<style>
+  .body { height: calc(100% - 56px); padding: 0 24px 18px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  .msg { display: flex; gap: 14px; align-items: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .avatar { flex: 0 0 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 19px; color: #13100b; }
+  .from { font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .03em; }
+  .text { font-size: 23px; line-height: 1.3; font-weight: 600; margin-top: 2px; word-break: keep-all; overflow-wrap: anywhere; }
+  .meta { font-size: 13px; color: var(--dim); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .reply { margin-left: 60px; border-color: rgba(61,214,140,0.3); background: rgba(61,214,140,0.07); }
+  .steps { display: flex; align-items: center; gap: 0; margin-top: 4px; }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 120px; font-size: 13px; color: var(--muted); text-align: center; }
+  .step i { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; background: rgba(255,255,255,0.08); color: var(--dim); }
+  .step.done i { background: var(--good); color: #0b2b1b; }
+  .step b { color: var(--ink); font-size: 14px; }
+  .bar { flex: 1; height: 3px; background: rgba(255,255,255,0.1); margin-top: -22px; }
+  .bar.done { background: var(--good); }
+  .big { font-size: 26px; font-weight: 700; }
+  .ring { width: 56px; height: 56px; }
+  html[data-mode="fullscreen"] .text { font-size: 28px; }
+  .compact { gap: 8px; }
+  .compact .msg { padding: 9px 12px; gap: 10px; }
+  .compact .avatar { flex-basis: 34px; height: 34px; font-size: 15px; }
+  .compact .text { font-size: 17px; }
+  .compact .meta { margin-top: 3px; }
+  .compact .reply { margin-left: 44px; }
+  .compact .step { min-width: 96px; font-size: 12px; }
+  .compact .step i { width: 24px; height: 24px; }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent" id="chip">Family Relay</span>
+    <span class="title" id="title"></span>
+    <span class="spacer"></span>
+    <span class="chip" id="right"></span>
+    <button class="fs-btn" title="Full screen" onclick="DKS.setMode('fullscreen')">&#x26F6;</button>
+  </div>
+  <div class="body" id="body"></div>
+</div>
+<script>
+  const E = DKS.esc;
+  const palette = ["#ffb36b", "#7dd3fc", "#c4b5fd", "#86efac", "#fda4af", "#fde68a"];
+  const colorOf = (name) => palette[[...String(name || "?")].reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length];
+  const av = (name) => `<div class="avatar" style="background:${colorOf(name)}">${E((name || "?").slice(0, 1).toUpperCase())}</div>`;
+  function expiry(m) { const h = Math.floor(m.expires_in_min / 60), mm = m.expires_in_min % 60; return `fades in ${h}h ${mm}m`; }
+  function msgHtml(m, cls) {
+    return `<div class="msg rise ${cls || ""}">${av(m.sender_name)}<div style="flex:1;min-width:0">
+      <div class="from">${E(m.kind === "reply" ? "REPLY FROM " : "FROM ")}${E((m.sender_name || "Someone in the family").toUpperCase())} · ${E(m.created_label)}</div>
+      <div class="text" lang="${E(m.lang || "")}">${E(m.text || "")}</div>
+      <div class="meta">${m.condition ? `<span>if: ${E(m.condition)}</span>` : ""}<span>${E(expiry(m))}</span>
+      ${m.delivered_label ? `<span>heard ${E(m.delivered_label)}${m.delivered_score ? " · voice " + Number(m.delivered_score).toFixed(2) : ""}</span>` : ""}</div></div></div>`;
+  }
+  function steps(m) {
+    const reps = m.reply_messages || [];
+    const s = [["Left", m.created_label, true], ["Heard", m.delivered_label || "waiting", !!m.delivered_at],
+               ["Reply", reps.length ? reps[reps.length - 1].created_label : "-", reps.length > 0]];
+    return `<div class="steps">${s.map(([k, v, d], i) => (i ? `<div class="bar ${d ? "done" : ""}"></div>` : "") +
+      `<div class="step ${d ? "done" : ""}"><i>${d ? "&#10003;" : i + 1}</i><b>${k}</b>${E(v || "")}</div>`).join("")}</div>`;
+  }
+  window.render = function (d) {
+    const body = document.getElementById("body");
+    const chip = document.getElementById("chip"), title = document.getElementById("title"), right = document.getElementById("right");
+    right.textContent = (d.clock && d.clock.local_label) || "";
+    const n = (d.messages || []).length + (d.view === "reply" || d.view === "status" ? 1 : 0);
+    body.classList.toggle("compact", n > 1 && document.documentElement.dataset.mode !== "fullscreen");
+    if (d.view === "saved") {
+      const m = d.message;
+      chip.textContent = "Saved"; title.textContent = `For ${m.recipient_name}`;
+      body.innerHTML = msgHtml(m) + `<div class="meta" style="font-size:15px;color:var(--muted)">I'll pass it on the next time I hear ${E(m.recipient_name)}'s voice - no setup needed. It disappears at ${E(m.expires_label)} if unheard.</div>`;
+      return;
+    }
+    if (d.view === "inbox") {
+      if (!d.messages.length) { chip.textContent = "Family Relay"; title.textContent = ""; body.innerHTML = `<div class="empty">Nothing waiting right now.</div>`; return; }
+      chip.textContent = "Passed on"; title.textContent = `For ${d.recipient.name}`;
+      body.innerHTML = d.messages.map((m) => msgHtml(m)).join("") +
+        (d.held_until_later.length ? `<div class="meta">${d.held_until_later.length} more later today</div>` : "");
+      return;
+    }
+    if (d.view === "reply") {
+      chip.textContent = "Reply saved"; title.textContent = `For ${d.reply.recipient_name}`;
+      body.innerHTML = msgHtml(d.original) + msgHtml(d.reply, "reply");
+      return;
+    }
+    if (d.view === "status") {
+      chip.textContent = "Message status"; title.textContent = d.about || "";
+      if (d.status !== "found") { body.innerHTML = `<div class="empty">No recent messages to ${E(d.about || "them")}.</div>`; return; }
+      const m = d.messages[d.messages.length - 1];
+      body.innerHTML = `<div class="msg rise">${av(m.sender_name)}<div style="flex:1"><div class="from">YOU TO ${E(m.recipient_name.toUpperCase())}</div>
+        <div class="text">${E(m.text)}</div>${steps(m)}</div></div>` + (m.reply_messages || []).map((r) => msgHtml(r, "reply")).join("");
+    }
+  };
+</script>

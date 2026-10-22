@@ -1,0 +1,17 @@
+.env
+data/
+build/
+.aws-sam/
+__pycache__/
+*.pyc
+.venv/
+venv/
+models/
+tmp/
+*.pem
+*.key
+*.sqlite3
+*.db
+*.tgz
+screenshots/*.mp4
+screenshots/video-raw/

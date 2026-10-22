@@ -1,0 +1,24 @@
+{
+  "_comment": "Which scenes are free (in daily order) and which are sold in packs. Scenes found on disk but not listed here are treated as free and appended in file-name order. Ids listed here but missing on disk show as 'coming soon'.",
+  "free_scene_order": ["cafe-order", "taxi-gyeongbokgung", "subway-directions"],
+  "packs": [
+    {
+      "pack_id": "office-life",
+      "title_en": "Office Life in Seoul",
+      "title_ko": "서울 직장 생활",
+      "tagline_en": "Team lunches, first days and after-work dinners - Korean for working with Koreans.",
+      "price_usd": 2.99,
+      "accent": "#f59e0b",
+      "scene_ids": ["kimchi-stew-lunch", "first-day-at-work", "team-dinner"]
+    },
+    {
+      "pack_id": "seoul-after-dark",
+      "title_en": "Seoul After Dark",
+      "title_ko": "서울의 밤",
+      "tagline_en": "Street food, night markets and karaoke - the Korean you need after 6 pm.",
+      "price_usd": 2.99,
+      "accent": "#8b5cf6",
+      "scene_ids": ["pocha-night", "night-market", "noraebang"]
+    }
+  ]
+}

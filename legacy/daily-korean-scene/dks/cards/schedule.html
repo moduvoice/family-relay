@@ -1,0 +1,31 @@
+<style>
+  .body { height: calc(100% - 56px); padding: 6px 40px 24px; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
+  .time { font-size: 64px; font-weight: 800; line-height: 1; }
+  .time small { font-size: 20px; color: var(--muted); font-weight: 600; margin-left: 10px; }
+  .week { display: flex; gap: 10px; }
+  .wd { width: 70px; height: 54px; border-radius: 14px; display: grid; place-items: center; font-weight: 700; font-size: 15px; text-transform: uppercase; background: rgba(255,255,255,0.06); color: var(--dim); }
+  .wd.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #1a1006; }
+  .next { font-size: 17px; color: var(--muted); }
+  .next b { color: var(--ink); }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip good">Reminder set</span>
+    <span class="title">Practice plan</span>
+    <span class="spacer"></span>
+    <span class="chip" id="mins"></span>
+  </div>
+  <div class="body" id="body"></div>
+</div>
+<script>
+  const E = DKS.esc;
+  const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  function fmt(t) { const [h, m] = t.split(":").map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")}<small>${h < 12 ? "AM" : "PM"}</small>`; }
+  window.render = function (d) {
+    const s = d.schedule;
+    document.getElementById("mins").textContent = `${s.minutes}-minute scene`;
+    document.getElementById("body").innerHTML = `<div class="time rise">${fmt(s.time_local)}<small>${E(s.timezone)}</small></div>
+      <div class="week">${DAYS.map((x) => `<div class="wd ${s.days.includes(x) ? "on" : ""}">${x}</div>`).join("")}</div>
+      <div class="next">Next practice <b>${E(s.next_label)}</b> - I'll open today's scene and your review cards.</div>`;
+  };
+</script>

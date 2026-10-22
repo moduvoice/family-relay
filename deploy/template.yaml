@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Family Relay (FR_PROFILE=aws) - MCP server with the familyvoice speaker module + simulator on Lambda Function URLs (arm64, Lambda Web Adapter), DynamoDB state, Transcribe / Bedrock Nova 2 Lite / Polly
+
+Parameters:
+  WebAdapterLayerArn:
+    Type: String
+    Description: AWS Lambda Web Adapter layer for arm64 in this region, e.g. arn:aws:lambda:eu-south-2:753240598075:layer:LambdaAdapterLayerArm64:25
+  NovaRegion:
+    Type: String
+    Default: us-east-1
+  NovaModel:
+    Type: String
+    Default: us.amazon.nova-2-lite-v1:0
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [arm64]
+    MemorySize: 1024
+    Timeout: 60
+    CodeUri: ../build/lambda
+    Layers: [!Ref WebAdapterLayerArn]
+    Environment:
+      Variables:
+        AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
+        AWS_LWA_PORT: "8080"
+        PYTHONPATH: /var/task
+        FR_STORE: dynamodb
+        FR_DYNAMODB_TABLE: !Ref StateTable
+        FR_PROFILE: aws
+        FR_NOVA_REGION: !Ref NovaRegion
+        FR_NOVA_MODEL: !Ref NovaModel
+
+Resources:
+  StateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+
+  McpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: run_mcp.sh
+      Environment:
+        Variables:
+          FR_MCP_STATELESS: "1"              # no session affinity between Lambda instances
+          FR_MCP_JSON_RESPONSE: "1"
+          FR_DNS_REBINDING_PROTECTION: "0"   # public URL; households are identified by their bearer token
+          FR_ALLOWED_ORIGINS: "*"
+          FR_DEMO_MODE: "1"
+      FunctionUrlConfig:
+        AuthType: NONE
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref StateTable }
+
+  SimulatorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: run_simulator.sh
+      Environment:
+        Variables:
+          FR_MCP_URL: !Sub "${McpFunctionUrl.FunctionUrl}mcp"
+      FunctionUrlConfig:
+        AuthType: NONE
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel]
+              Resource:
+                - arn:aws:bedrock:*::foundation-model/amazon.nova-2-lite-v1:0
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/us.amazon.nova-2-lite-v1:0
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/global.amazon.nova-2-lite-v1:0
+            - Effect: Allow
+              Action: [transcribe:StartStreamTranscription, polly:SynthesizeSpeech]
+              Resource: "*"
+
+Outputs:
+  McpUrl:
+    Value: !Sub "${McpFunctionUrl.FunctionUrl}mcp"
+  SimulatorUrl:
+    Value: !GetAtt SimulatorFunctionUrl.FunctionUrl
+  StateTableName:
+    Value: !Ref StateTable

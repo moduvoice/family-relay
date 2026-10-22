@@ -1,0 +1,5 @@
+# voice engines (pick what your profile needs)
+amazon-transcribe>=0.6     # FR_PROFILE=aws  STT (Amazon Transcribe streaming)
+sherpa-onnx>=1.12          # FR_PROFILE=local STT (parakeet / SenseVoice), VAD (silero), TTS (Piper)
+onnxruntime>=1.17          # familyvoice speaker embeddings
+soundfile

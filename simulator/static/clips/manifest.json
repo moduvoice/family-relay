@@ -1,0 +1,51 @@
+{
+ "steps": {
+  "0": "s00-dad.wav",
+  "1": "s01-mom.wav",
+  "2": "s02-hannah.wav",
+  "3": "s03-grandma.wav",
+  "4": "s04-dad.wav",
+  "5": "s05-grandma.wav",
+  "6": "s06-dad.wav",
+  "7": "s07-mom.wav",
+  "8": "s08-hannah.wav",
+  "9": "s09-grandma.wav",
+  "10": "s10-mom.wav",
+  "11": "s11-hannah.wav",
+  "12": "s12-hannah.wav",
+  "13": "s13-dad.wav",
+  "14": "s14-dad.wav",
+  "15": "s15-mom.wav",
+  "16": "s16-hannah.wav",
+  "17": "s17-grandma.wav",
+  "18": "s18-dad.wav",
+  "19": "s19-mom.wav",
+  "20": "s20-mom.wav",
+  "21": "s21-grandma.wav",
+  "22": "s22-grandma.wav",
+  "23": "s23-grandma.wav",
+  "24": "s24-hannah.wav",
+  "25": "s25-hannah.wav",
+  "26": "s26-dad.wav",
+  "27": "s27-dad.wav",
+  "28": "s28-mom.wav",
+  "29": "s29-mom.wav"
+ },
+ "sample_rate": 16000,
+ "source": "Amazon Polly (standard)",
+ "voices": {
+  "Dad": {
+   "VoiceId": "Matthew"
+  },
+  "Mom": {
+   "VoiceId": "Joanna"
+  },
+  "Hannah": {
+   "VoiceId": "Ivy"
+  },
+  "Grandma": {
+   "VoiceId": "Kimberly",
+   "rate": "90%"
+  }
+ }
+}

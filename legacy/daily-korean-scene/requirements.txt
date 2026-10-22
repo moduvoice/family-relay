@@ -1,0 +1,5 @@
+mcp==2.3.0
+starlette>=1.0
+uvicorn>=0.30
+boto3>=1.35
+tzdata

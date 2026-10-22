@@ -1,0 +1,159 @@
+<style>
+  .scene { display: grid; grid-template-columns: 1fr 300px; height: calc(100% - 56px); }
+  .convo { overflow: hidden; padding: 4px 14px 14px 20px; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28px); mask-image: linear-gradient(to bottom, transparent 0, #000 28px); }
+  .bubble .k, .fix { word-break: keep-all; overflow-wrap: anywhere; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .avatar { flex: 0 0 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font: 700 16px var(--ko); color: #13100b; }
+  .bubble { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px 16px 16px 16px; padding: 9px 13px; max-width: 100%; }
+  .bubble .who { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.03em; margin-bottom: 2px; }
+  .bubble .k { font: 600 21px/1.35 var(--ko); }
+  .bubble .r { font-size: 13px; color: var(--dim); font-style: italic; margin-top: 2px; }
+  .bubble .e { font-size: 14px; color: var(--muted); margin-top: 1px; }
+  .msg.me { flex-direction: row-reverse; }
+  .msg.me .bubble { border-radius: 16px 4px 16px 16px; background: rgba(255, 122, 89, 0.12); border-color: rgba(255, 122, 89, 0.3); }
+  .narr { text-align: center; color: var(--muted); font-style: italic; font-size: 14px; padding: 2px 30px; }
+  .coach { background: rgba(0, 0, 0, 0.22); border-left: 1px solid var(--line); padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-2); font-weight: 700; }
+  .task { font-size: 22px; font-weight: 700; line-height: 1.25; }
+  .hint { font-size: 14px; color: var(--muted); line-height: 1.4; }
+  .hint.hidden { display: none; }
+  .mic { display: flex; align-items: center; gap: 10px; margin-top: auto; color: var(--muted); font-size: 14px; }
+  .mic .ring { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle, var(--accent) 0 38%, transparent 40%); box-shadow: 0 0 0 0 rgba(255,122,89,.5); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,122,89,.45); } 70% { box-shadow: 0 0 0 14px rgba(255,122,89,0); } 100% { box-shadow: 0 0 0 0 rgba(255,122,89,0); } }
+  .verdict { display: flex; align-items: baseline; gap: 10px; }
+  .verdict b { font-size: 26px; }
+  .verdict.correct b { color: var(--good); } .verdict.close b { color: var(--warn); } .verdict.incorrect b { color: var(--bad); }
+  .fix { font: 600 19px/1.4 var(--ko); }
+  .fix-r { font-size: 13px; color: var(--dim); font-style: italic; }
+  .issue { font-size: 13.5px; line-height: 1.35; color: var(--ink); display: flex; gap: 8px; align-items: baseline; }
+  .issue .chip { flex: 0 0 auto; font-size: 11px; padding: 2px 8px; text-transform: capitalize; }
+  .say { font-size: 14px; color: var(--muted); line-height: 1.4; }
+  .done-big { font-size: 40px; font-weight: 800; }
+  .lock { padding: 20px 26px; display: flex; flex-direction: column; gap: 12px; }
+  html[data-mode="fullscreen"] .bubble .k { font-size: 24px; }
+  html[data-mode="fullscreen"] .task { font-size: 25px; }
+  html[data-mode="fullscreen"] .scene { grid-template-columns: 1fr 320px; }
+</style>
+<div class="card" id="root">
+  <div class="head">
+    <span class="chip accent" id="day">Day 1</span>
+    <span class="title" id="title">Daily Korean Scene</span>
+    <span class="sub ko" id="title-ko"></span>
+    <span class="spacer"></span>
+    <div class="dots" id="dots"></div>
+    <button class="fs-btn" title="Full screen" onclick="DKS.setMode('fullscreen')">&#x26F6;</button>
+  </div>
+  <div class="scene" id="scene">
+    <div class="convo" id="convo"></div>
+    <div class="coach" id="coach"></div>
+  </div>
+</div>
+<script>
+  const S = { lines: [], scene: null, turns: [], prompt: null };
+  const palette = ["#ffb36b", "#7dd3fc", "#c4b5fd", "#86efac", "#fda4af"];
+  function colorFor(id) {
+    const ids = ((S.scene && S.scene.characters) || []).map((c) => c.id);
+    const i = Math.max(0, ids.indexOf(id));
+    return palette[i % palette.length];
+  }
+  function lineHtml(l) {
+    const E = DKS.esc;
+    if (l.kind === "me") {
+      return `<div class="msg me rise"><div class="avatar" style="background:var(--accent)">나</div>
+        <div class="bubble"><div class="who">YOU</div><div class="k">${l.html}</div></div></div>`;
+    }
+    if (l.speaker === "narrator") return `<div class="narr rise">${E(l.en)}</div>`;
+    return `<div class="msg rise"><div class="avatar" style="background:${colorFor(l.speaker)}">${E((l.speaker_name_ko || "?").slice(0, 1))}</div>
+      <div class="bubble"><div class="who">${E(l.speaker_name_ko)} · ${E(l.speaker_role_en)}</div>
+      <div class="k">${E(l.ko)}</div><div class="r">${E(l.romanization)}</div><div class="e">${E(l.en)}</div></div></div>`;
+  }
+  function drawConvo() {
+    const max = document.documentElement.dataset.mode === "fullscreen" ? 3 : 2;
+    document.getElementById("convo").innerHTML = S.lines.slice(-max).map(lineHtml).join("");
+  }
+  function drawDots() {
+    if (!S.prompt && !S.turns.length) { document.getElementById("dots").innerHTML = ""; return; }
+    const total = (S.prompt && S.prompt.turns_total) || S.turns.length;
+    let h = "";
+    for (let i = 0; i < total; i++) {
+      const t = S.turns[i];
+      h += `<i class="${t ? (t === "correct" ? "done" : "miss") : (S.prompt && i === S.prompt.turn - 1 ? "on" : "")}"></i>`;
+    }
+    document.getElementById("dots").innerHTML = h;
+  }
+  function promptHtml(p, extra) {
+    const E = DKS.esc;
+    return `${extra || ""}<div class="label">Your turn · ${p.turn}/${p.turns_total}</div>
+      <div class="task rise">${E(p.task_en)}</div>
+      <div class="hint hidden" id="hint">${E(p.hint_en)}</div>
+      <button class="btn ghost" style="min-height:38px;padding:8px 14px;font-size:14px;align-self:flex-start" onclick="document.getElementById('hint').classList.toggle('hidden')">Show hint</button>
+      <div class="mic"><div class="ring"></div>Say it in Korean</div>`;
+  }
+  function gradeHtml(g, compact) {
+    const E = DKS.esc;
+    const issues = (g.issues || []).slice(0, compact ? 1 : 3).map((i) =>
+      `<div class="issue"><span class="chip ${i.type === "politeness" ? "warn" : "bad"}">${E(i.type)}</span><span>${E(i.explanation_en)}</span></div>`).join("");
+    const fix = g.verdict === "correct" ? "" :
+      `<div><div class="fix">${DKS.markAll(g.corrected_ko, (g.issues || []).map((i) => i.fix_span), "good")}</div>
+       <div class="fix-r">${E(g.corrected_romanization)}</div></div>`;
+    return `<div class="verdict ${g.verdict} rise"><b>${DKS.verdictLabel(g.verdict)}</b><span class="muted">${g.score}/100</span></div>${fix}${issues}`;
+  }
+  function render(sc) {
+    const E = DKS.esc;
+    const coach = document.getElementById("coach");
+    if (sc.scene) {
+      S.scene = sc.scene;
+      document.getElementById("title").textContent = sc.scene.title_en;
+      document.getElementById("title-ko").textContent = sc.scene.title_ko;
+    }
+    if (sc.day_number) document.getElementById("day").textContent = "Day " + sc.day_number;
+    if (sc.status === "locked") {
+      document.getElementById("scene").innerHTML = `<div class="lock"><span class="chip warn">Locked</span>
+        <div class="task">${E(sc.scene.title_en)} is in the ${E((sc.pack || {}).title_en)} pack.</div>
+        <div class="say">Ask to buy the pack to unlock it.</div></div>`;
+      return;
+    }
+    if (sc.status === "completed_today") {
+      S.lines = [];
+      drawConvo();
+      coach.innerHTML = `<div class="label">Today's scene</div><div class="done-big">Done</div>
+        <div class="say">${sc.review_due ? sc.review_due + " review card(s) waiting. Say \"let's review\"." : "Come back tomorrow for a new scene."}</div>`;
+      return;
+    }
+    if (sc.status === "started" || sc.status === "resumed") {
+      S.lines = (sc.lines || []).slice();
+      S.turns = [];
+    }
+    if (sc.grade) {
+      const g = sc.grade;
+      const spans = (g.issues || []).filter((i) => i.learner_span_found).map((i) => i.learner_span);
+      S.lines.push({ kind: "me", html: DKS.markAll(sc.answer_ko, spans, "bad") });
+      if (sc.status !== "try_again") S.turns.push(S.turns.length < (sc.prompt ? sc.prompt.turn - 1 : 99) ? g.verdict : g.verdict);
+      for (const l of sc.lines || []) S.lines.push(l);
+    }
+    S.prompt = sc.prompt || null;
+    drawConvo();
+    drawDots();
+    if (sc.status === "scene_complete") {
+      const s = sc.summary;
+      coach.innerHTML = gradeHtml(sc.grade, true) + `<div class="label" style="margin-top:6px">Scene complete</div>
+        <div class="done-big">${s.correct_first_try}/${s.turns}</div>
+        <div class="say">right on the first try · streak ${s.streak} day${s.streak === 1 ? "" : "s"}</div>
+        <div class="say">${s.to_review.length ? s.to_review.length + " line(s) saved for tomorrow's review." : "Nothing to review - clean run!"}</div>`;
+      return;
+    }
+    if (sc.grade && sc.status === "try_again") {
+      coach.innerHTML = gradeHtml(sc.grade, false) + `<div class="say">One more try.</div><div class="mic"><div class="ring"></div>Say it again</div>`;
+      return;
+    }
+    if (sc.grade) {
+      coach.innerHTML = gradeHtml(sc.grade, true) + `<div style="height:4px"></div>` +
+        `<div class="label">Next · ${sc.prompt.turn}/${sc.prompt.turns_total}</div><div class="task rise" style="font-size:19px">${E(sc.prompt.task_en)}</div>`;
+      return;
+    }
+    coach.innerHTML = sc.prompt ? promptHtml(sc.prompt) : "";
+  }
+  window.render = render;
+  window.onHostContext = () => drawConvo();
+</script>

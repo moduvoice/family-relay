@@ -1,0 +1,70 @@
+<style>
+  .body { height: calc(100% - 56px); display: grid; grid-template-columns: 340px 1fr; gap: 16px; padding: 0 20px 16px; }
+  svg { background: rgba(0,0,0,0.25); border-radius: 14px; width: 340px; height: 100%; }
+  .list { display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .v { display: grid; grid-template-columns: 14px 1fr 70px; gap: 10px; align-items: center; padding: 5px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+  .v.cur { outline: 2px solid var(--accent); }
+  .sw { width: 14px; height: 14px; border-radius: 50%; }
+  .nm { font-weight: 700; font-size: 15px; }
+  .nm small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .sc { font-size: 12px; color: var(--muted); text-align: right; }
+  .sc div { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.1); margin-top: 3px; }
+  .sc div span { display: block; height: 100%; border-radius: 3px; }
+  .note { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+</style>
+<div class="card">
+  <div class="head">
+    <span class="chip accent">Voices</span>
+    <span class="title">Learned from everyday use</span>
+    <span class="spacer"></span>
+    <span class="chip" id="right">No enrollment</span>
+  </div>
+  <div class="body"><svg id="plot" viewBox="0 0 340 230" preserveAspectRatio="none"></svg><div class="list" id="list"></div></div>
+</div>
+<script>
+  const E = DKS.esc;
+  const palette = ["#ffb36b", "#7dd3fc", "#c4b5fd", "#86efac", "#fda4af", "#fde68a"];
+  window.render = function (d) {
+    const colors = {};
+    (d.voices || []).forEach((v, i) => (colors[v.speaker_id] = palette[i % palette.length]));
+    const W = 340, H = 230;
+    const cur = d.current && d.current.result;
+    const xs = [], ys = [];   // stretch the module's 2-D projection to fill the plot
+    for (const v of d.voices || []) if (v.center) { xs.push(v.center[0]); ys.push(v.center[1]); }
+    for (const p of d.points || []) { xs.push(p.x); ys.push(p.y); }
+    const span = (a) => { const lo = Math.min(...a), hi = Math.max(...a); return [lo, Math.max(hi - lo, 1e-3)]; };
+    const [x0, xw] = xs.length ? span(xs) : [0, 1], [y0, yw] = ys.length ? span(ys) : [0, 1];
+    const X = (x) => 28 + ((x - x0) / xw) * (W - 56), Y = (y) => 34 + ((y - y0) / yw) * (H - 62);
+    let svg = "";
+    const labels = [];
+    for (const v of d.voices || []) {
+      if (!v.center) continue;
+      const r = 12 + Math.min(20, v.utterances * 2);
+      svg += `<circle cx="${X(v.center[0])}" cy="${Y(v.center[1])}" r="${r}" fill="${colors[v.speaker_id]}" fill-opacity="0.12" stroke="${colors[v.speaker_id]}" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+      labels.push({ x: X(v.center[0]), y: Math.max(13, Y(v.center[1]) - r - 4), t: v.name || "unnamed", c: colors[v.speaker_id] });
+    }
+    labels.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++)
+      for (let j = 0; j < i; j++)
+        if (Math.abs(labels[i].y - labels[j].y) < 14 && Math.abs(labels[i].x - labels[j].x) < 70) labels[i].y = labels[j].y + 14;
+    for (const p of d.points || []) {
+      const x = X(p.x), y = Y(p.y);
+      svg += p.discarded
+        ? `<g stroke="#6b7690" stroke-width="2"><line x1="${x - 4}" y1="${y - 4}" x2="${x + 4}" y2="${y + 4}"/><line x1="${x - 4}" y1="${y + 4}" x2="${x + 4}" y2="${y - 4}"/></g>`
+        : `<circle cx="${x}" cy="${y}" r="4" fill="${colors[p.speaker_id] || "#999"}" fill-opacity="${p.state === "confirmed" ? 1 : 0.45}"/>`;
+    }
+    for (const l of labels) svg += `<text x="${l.x}" y="${Math.min(H - 20, l.y)}" fill="${l.c}" font-size="12" font-weight="700" text-anchor="middle" font-family="Segoe UI, sans-serif">${E(l.t)}</text>`;
+    if (cur && cur.viz_xy) svg += `<circle cx="${X(cur.viz_xy[0])}" cy="${Y(cur.viz_xy[1])}" r="9" fill="none" stroke="#ff7a59" stroke-width="2.5"/>`;
+    const discarded = (d.points || []).filter((p) => p.discarded).length;
+    svg += `<text x="8" y="${H - 8}" fill="#8f99b0" font-size="11" font-family="Segoe UI, sans-serif">&#x2715; noise discarded: ${discarded}</text>`;
+    document.getElementById("plot").innerHTML = svg;
+    document.getElementById("list").innerHTML = (d.voices || []).map((v) => {
+      const isCur = cur && cur.speaker_id === v.speaker_id;
+      const sc = isCur ? cur.score : v.last_score || 0;
+      const col = sc >= 0.75 ? "var(--good)" : sc >= 0.5 ? "var(--warn)" : "var(--bad)";
+      return `<div class="v ${isCur ? "cur" : ""}"><span class="sw" style="background:${colors[v.speaker_id]}"></span>
+        <div class="nm">${E(v.name || "Unnamed voice")}<small>${E(v.speaker_id)} · ${v.utterances} utterance${v.utterances === 1 ? "" : "s"}</small></div>
+        <div class="sc">${isCur ? "now " : "last "}${Number(sc).toFixed(2)}<div><span style="width:${Math.round(sc * 100)}%;background:${col}"></span></div></div></div>`;
+    }).join("") + `<div class="note">Voices cluster on their own as the family talks. Messages go only to a clear match.</div>`;
+  };
+</script>
