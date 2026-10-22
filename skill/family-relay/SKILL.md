@@ -1,6 +1,6 @@
 ---
 name: family-relay
-description: Pass short spoken messages between family members on a shared Alexa+ device by voice alone - save "tell Sunhee to eat dinner", hand it over the next time Sunhee's voice is clearly heard (woven into whatever she asks), carry her reply back, and answer "did Sunhee eat?" from the delivery record. Messages fade after 24 hours. Use when someone asks you to tell, remind or pass something on to a family member, replies to a passed-on message, or asks whether a family member got or answered a message.
+description: Pass short spoken messages between family members on a shared Alexa+ device by voice alone - save "tell Hannah to eat dinner", hand it over the next time Hannah's voice is clearly heard (woven into whatever she asks), carry her reply back, and answer "did Hannah eat?" from the delivery record. Messages fade after 24 hours. Use when someone asks you to tell, remind or pass something on to a family member, replies to a passed-on message, or asks whether a family member got or answered a message.
 ---
 
 # Family Relay
@@ -10,13 +10,13 @@ is asked who they are. Each tool call acts for the voice the device just heard, 
 the turn's bracket line when that voice is a clear match and how many messages wait for it.
 
 ## The loop
-1. Someone says "Tell Sunhee to eat dinner, there's stew in the fridge" -> `leave_message(recipient="Sunhee",
+1. Someone says "Tell Hannah to eat dinner, there's stew in the fridge" -> `leave_message(recipient="Hannah",
    message="Eat dinner, there's stew in the fridge")`. Confirm in one short sentence.
-2. Later a voice the device clearly recognizes as Sunhee asks for anything ("what time is it?"). The bracket line
+2. Later a voice the device clearly recognizes as Hannah asks for anything ("what time is it?"). The bracket line
    says a message is waiting -> call `get_pending_messages` in the same step, answer her question, then:
    "By the way, Dad asked me to tell you to eat dinner - there's stew in the fridge."
 3. She answers "Tell him it was delicious" -> `reply_to_message(reply="It was delicious")`.
-4. Dad comes home: "Did Sunhee eat?" -> `ask_status(about="Sunhee")`; answer from the reply:
+4. Dad comes home: "Did Hannah eat?" -> `ask_status(about="Hannah")`; answer from the reply:
    "Yes - she said it was delicious, and she heard your message at 6:05."
 5. When no clear speaker is named, help with the request normally; the message waits for the next utterance.
 
